@@ -28,6 +28,7 @@ export class Avatar extends RoomObject implements IMoveable, IScreenPositioned {
   private _waving = false;
   private _direction = 0;
   private _headDirection?: number;
+  private _id?: string;
   private _item: string | number | undefined;
   private _look: string;
   private _roomX = 0;
@@ -54,6 +55,7 @@ export class Avatar extends RoomObject implements IMoveable, IScreenPositioned {
     roomZ,
     direction,
     headDirection,
+    string,
   }: Options) {
     super();
 
@@ -63,6 +65,7 @@ export class Avatar extends RoomObject implements IMoveable, IScreenPositioned {
     this._roomY = roomY;
     this._roomZ = roomZ;
     this._headDirection = headDirection;
+    this._id = id;
 
     this._placeholderSprites = new BaseAvatar({
       look: this._getPlaceholderLookOptions(),
@@ -694,4 +697,5 @@ interface Options extends RoomPosition {
    */
   direction: number;
   headDirection?: number;
+  id?: string;
 }
