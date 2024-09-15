@@ -85,6 +85,6 @@
     "shroom": "dist/cli/index.js"
   },
   "files": [
-    "/dist"
+    "dist"
   ]
 }
