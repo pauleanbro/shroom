@@ -55,7 +55,7 @@ export class Avatar extends RoomObject implements IMoveable, IScreenPositioned {
     roomZ,
     direction,
     headDirection,
-    string,
+    id,
   }: Options) {
     super();
 

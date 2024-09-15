@@ -1,0 +1,30 @@
+import * as PIXI from "pixi.js";
+import { RoomObject } from "../RoomObject";
+import { IRoomPart } from "./parts/IRoomPart";
+import { RoomPartData } from "./parts/RoomPartData";
+export declare class Landscape extends RoomObject implements IRoomPart {
+    private _container;
+    private _leftTexture;
+    private _rightTexture;
+    private _wallHeight;
+    private _wallHeightWithZ;
+    private _leftTexturePromise;
+    private _rightTexturePromise;
+    private _masks;
+    private _color;
+    private _unsubscribe;
+    private _partNode;
+    constructor();
+    get color(): string | undefined;
+    set color(value: string | undefined);
+    get leftTexture(): PIXI.Texture | Promise<PIXI.Texture> | undefined;
+    set leftTexture(value: PIXI.Texture | Promise<PIXI.Texture> | undefined);
+    get rightTexture(): PIXI.Texture | Promise<PIXI.Texture> | undefined;
+    set rightTexture(value: PIXI.Texture | Promise<PIXI.Texture> | undefined);
+    update(data: RoomPartData): void;
+    destroyed(): void;
+    registered(): void;
+    private _createDefaultMask;
+    private _getMask;
+    private _updateLandscapeImages;
+}

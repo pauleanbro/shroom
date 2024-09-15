@@ -1,0 +1,51 @@
+import * as PIXI from "pixi.js";
+import { EventOverOutHandler } from "../events/EventOverOutHandler";
+import { EventGroupIdentifier, IEventGroup } from "../events/interfaces/IEventGroup";
+import { IEventManager } from "../events/interfaces/IEventManager";
+import { ClickHandler } from "../hitdetection/ClickHandler";
+import { IFurnitureVisualizationData } from "./data/interfaces/IFurnitureVisualizationData";
+import { IFurnitureVisualizationLayer, IFurnitureVisualizationView } from "./IFurnitureVisualizationView";
+import { LoadFurniResult } from "./util/loadFurni";
+export declare class FurnitureVisualizationView implements IFurnitureVisualizationView, IBaseFurniture, IEventGroup {
+    private _eventManager;
+    private _clickHandler;
+    private _overOutHandler;
+    private _container;
+    private _furniture;
+    private _direction;
+    private _animation;
+    private _cache;
+    private _layers;
+    private _x;
+    private _y;
+    private _zIndex;
+    private _alpha;
+    private _highlight;
+    get x(): number;
+    set x(value: number);
+    get y(): number;
+    set y(value: number);
+    get zIndex(): number;
+    set zIndex(value: number);
+    get alpha(): number;
+    set alpha(value: number);
+    get highlight(): boolean;
+    set highlight(value: boolean);
+    constructor(_eventManager: IEventManager, _clickHandler: ClickHandler, _overOutHandler: EventOverOutHandler, _container: PIXI.Container, _furniture: LoadFurniResult);
+    getEventGroupIdentifier(): EventGroupIdentifier;
+    getLayers(): IFurnitureVisualizationLayer[];
+    getVisualizationData(): IFurnitureVisualizationData;
+    setDisplayAnimation(animation?: string): void;
+    setDisplayDirection(direction: number): void;
+    updateLayers(): void;
+    updateDisplay(): void;
+    destroy(): void;
+    private _getDrawDefinition;
+}
+export interface IBaseFurniture {
+    x: number;
+    y: number;
+    zIndex: number;
+    alpha: number;
+    highlight: boolean;
+}

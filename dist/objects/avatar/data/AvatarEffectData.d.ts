@@ -1,0 +1,31 @@
+import { AvatarEffectDirection, AvatarEffectFrameBodypart, AvatarEffectFrameFXPart, AvatarEffectFXAddition, AvatarEffectSprite, AvatarEffectSpriteDirection, IAvatarEffectData } from "./interfaces/IAvatarEffectData";
+export declare class AvatarEffectData implements IAvatarEffectData {
+    private _frameBodyParts;
+    private _frameFxParts;
+    private _sprites;
+    private _additions;
+    private _spriteDirections;
+    private _direction;
+    private _frameCount;
+    private _frameBodyPartsById;
+    private _frameBodyPartByBase;
+    private _frameFxPartsById;
+    constructor(string: string);
+    static fromUrl(url: string): Promise<AvatarEffectData>;
+    getFrameBodyPartByBase(bodyPartId: string, frame: number): AvatarEffectFrameBodypart | undefined;
+    getFrameEffectPart(id: string, frame: number): AvatarEffectFrameFXPart | undefined;
+    getFrameBodyPart(bodyPartId: string, frame: number): AvatarEffectFrameBodypart | undefined;
+    getAddtions(): AvatarEffectFXAddition[];
+    getFrameEffectParts(frame: number): AvatarEffectFrameFXPart[];
+    getDirection(): AvatarEffectDirection | undefined;
+    getFrameBodyParts(frame: number): AvatarEffectFrameBodypart[];
+    getFrameCount(): number;
+    getSprites(): AvatarEffectSprite[];
+    getSpriteDirection(id: string, direction: number): AvatarEffectSpriteDirection | undefined;
+    private _getFXAddition;
+    private _getFXPartFromElement;
+    private _getDirectionFromElement;
+    private _getDirectionSpriteFromElement;
+    private _getEffectSpriteFromElement;
+    private _getFrameBodyPartFromElement;
+}

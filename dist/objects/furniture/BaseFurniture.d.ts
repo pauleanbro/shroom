@@ -1,0 +1,136 @@
+import * as PIXI from "pixi.js";
+import { IFurnitureEventHandlers } from "./util/IFurnitureEventHandlers";
+import { MaskNode } from "../../interfaces/IRoomVisualization";
+import { FurnitureFetch, IFurnitureLoader } from "../../interfaces/IFurnitureLoader";
+import { IAnimationTicker } from "../../interfaces/IAnimationTicker";
+import { IRoomContext } from "../../interfaces/IRoomContext";
+import { Shroom } from "../Shroom";
+import { IFurnitureVisualization } from "./IFurnitureVisualization";
+import { IEventManager } from "../events/interfaces/IEventManager";
+import { EventGroupIdentifier, IEventGroup } from "../events/interfaces/IEventGroup";
+type MaskIdGetter = (direction: number) => string | undefined;
+export type SpriteWithStaticOffset = {
+    x: number;
+    y: number;
+    sprite: PIXI.Sprite;
+    zIndex?: number;
+};
+interface BaseFurnitureDependencies {
+    placeholder: PIXI.Texture | undefined;
+    visualization: IFurnitureRoomVisualization;
+    animationTicker: IAnimationTicker;
+    furnitureLoader: IFurnitureLoader;
+    application: PIXI.Application;
+    eventManager: IEventManager;
+}
+export interface BaseFurnitureProps {
+    type: FurnitureFetch;
+    direction: number;
+    animation: string | undefined;
+    getMaskId?: MaskIdGetter;
+    onLoad?: () => void;
+}
+export declare class BaseFurniture implements IFurnitureEventHandlers, IEventGroup {
+    private _sprites;
+    private _loadFurniResult;
+    private _x;
+    private _y;
+    private _zIndex;
+    private _direction;
+    private _animation;
+    private _type;
+    private _unknownTexture;
+    private _unknownSprite;
+    private _clickHandler;
+    private _overOutHandler;
+    private _loadFurniResultPromise;
+    private _validDirections;
+    private _resolveLoadFurniResult;
+    private _view;
+    private _visualization;
+    private _fallbackVisualization;
+    private _refreshPosition;
+    private _refreshFurniture;
+    private _refreshZIndex;
+    private _highlight;
+    private _alpha;
+    private _destroyed;
+    private _maskNodes;
+    private _maskSprites;
+    private _cancelTicker;
+    private _getMaskId;
+    private _onLoad;
+    private _dependencies?;
+    constructor({ type, direction, animation, getMaskId, dependencies, onLoad, }: {
+        dependencies?: BaseFurnitureDependencies;
+    } & BaseFurnitureProps);
+    static fromRoomContext(context: IRoomContext, props: BaseFurnitureProps): BaseFurniture;
+    static fromShroom(shroom: Shroom, container: PIXI.Container, props: BaseFurnitureProps): BaseFurniture;
+    get dependencies(): {
+        placeholder: PIXI.Texture | undefined;
+        visualization: IFurnitureRoomVisualization;
+        animationTicker: IAnimationTicker;
+        furnitureLoader: IFurnitureLoader;
+        eventManager: IEventManager;
+    };
+    set dependencies(value: {
+        placeholder: PIXI.Texture | undefined;
+        visualization: IFurnitureRoomVisualization;
+        animationTicker: IAnimationTicker;
+        furnitureLoader: IFurnitureLoader;
+        eventManager: IEventManager;
+    });
+    get visualization(): IFurnitureVisualization;
+    set visualization(value: IFurnitureVisualization);
+    get mounted(): boolean;
+    get extradata(): Promise<import("./FurnitureExtraData").FurnitureExtraData>;
+    get validDirections(): Promise<number[]>;
+    get highlight(): boolean;
+    set highlight(value: boolean);
+    get alpha(): number;
+    set alpha(value: number);
+    get onClick(): import("../hitdetection/HitSprite").HitEventHandler | undefined;
+    set onClick(value: import("../hitdetection/HitSprite").HitEventHandler | undefined);
+    get onDoubleClick(): import("../hitdetection/HitSprite").HitEventHandler | undefined;
+    set onDoubleClick(value: import("../hitdetection/HitSprite").HitEventHandler | undefined);
+    get onPointerDown(): import("../hitdetection/HitSprite").HitEventHandler | undefined;
+    set onPointerDown(value: import("../hitdetection/HitSprite").HitEventHandler | undefined);
+    get onPointerUp(): import("../hitdetection/HitSprite").HitEventHandler | undefined;
+    set onPointerUp(value: import("../hitdetection/HitSprite").HitEventHandler | undefined);
+    get onPointerOut(): ((event: import("../events/interfaces/IEventManagerEvent").IEventManagerEvent) => void) | undefined;
+    set onPointerOut(value: ((event: import("../events/interfaces/IEventManagerEvent").IEventManagerEvent) => void) | undefined);
+    get onPointerOver(): ((event: import("../events/interfaces/IEventManagerEvent").IEventManagerEvent) => void) | undefined;
+    set onPointerOver(value: ((event: import("../events/interfaces/IEventManagerEvent").IEventManagerEvent) => void) | undefined);
+    get x(): number;
+    set x(value: number);
+    get y(): number;
+    set y(value: number);
+    get zIndex(): number;
+    set zIndex(value: number);
+    get direction(): number;
+    set direction(value: number);
+    get animation(): string | undefined;
+    set animation(value: string | undefined);
+    get maskId(): MaskIdGetter;
+    set maskId(value: MaskIdGetter);
+    getEventGroupIdentifier(): EventGroupIdentifier;
+    destroy(): void;
+    private _onTicker;
+    private _updateDirection;
+    private _updateSprites;
+    private _updateZIndex;
+    private _updatePosition;
+    private _updateFurniture;
+    private _updateUnknown;
+    private _createNewView;
+    private _updateFurnitureSprites;
+    private _destroySprites;
+    private _loadFurniture;
+    private _handleAnimationChange;
+    private _getAlpha;
+}
+export interface IFurnitureRoomVisualization {
+    container: PIXI.Container;
+    addMask(maskId: string, element: PIXI.DisplayObject): MaskNode;
+}
+export {};
