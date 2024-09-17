@@ -37,21 +37,18 @@ class RoomCamera extends PIXI.Container {
         this._state = { type: "WAITING" };
         this._offsets = { x: 0, y: 0 };
         this._animatedOffsets = { x: 0, y: 0 };
+        this._isDragging = false; // Para rastrear o arrasto manual
         this._handlePointerUp = (event) => {
             if (this._state.type === "WAITING" || this._state.type === "ANIMATE_ZERO")
                 return;
             if (this._state.pointerId !== event.pointerId)
                 return;
-            let animatingBack = false;
-            if (this._state.type === "DRAGGING") {
-                animatingBack = this._stopDragging(this._state);
-            }
-            if (!animatingBack) {
-                this._resetDrag();
-            }
+            this._isDragging = false; // O arrasto manual foi finalizado
+            this._resetDrag();
         };
         this._handlePointerDown = (event) => {
             const position = event.data.getLocalPosition(this.parent);
+            this._isDragging = true; // Começou o arrasto manual
             if (this._state.type === "WAITING") {
                 this._enterWaitingForDistance(position, event.data.pointerId);
             }
@@ -62,14 +59,17 @@ class RoomCamera extends PIXI.Container {
         this._handlePointerMove = (event) => {
             const box = this._room.application.view.getBoundingClientRect();
             const position = new PIXI.Point(event.clientX - box.x - this.parent.worldTransform.tx, event.clientY - box.y - this.parent.worldTransform.tx);
-            switch (this._state.type) {
-                case "WAIT_FOR_DISTANCE": {
-                    this._tryUpgradeWaitForDistance(this._state, position, event.pointerId);
-                    break;
-                }
-                case "DRAGGING": {
-                    this._updateDragging(this._state, position, event.pointerId);
-                    break;
+            if (this._isDragging) {
+                // Permite o arrasto manual do mapa
+                switch (this._state.type) {
+                    case "WAIT_FOR_DISTANCE": {
+                        this._tryUpgradeWaitForDistance(this._state, position, event.pointerId);
+                        break;
+                    }
+                    case "DRAGGING": {
+                        this._updateDragging(this._state, position, event.pointerId);
+                        break;
+                    }
                 }
             }
         };
@@ -84,6 +84,9 @@ class RoomCamera extends PIXI.Container {
         this._followAvatar = (_c = _options === null || _options === void 0 ? void 0 : _options.followAvatar) !== null && _c !== void 0 ? _c : false;
         this._avatar = _options === null || _options === void 0 ? void 0 : _options.avatar;
         this.addChild(this._parentContainer);
+        if (this._avatar) {
+            this._centerCameraOnAvatar();
+        }
         // Activation of the camera is only triggered by a down event on the parent container.
         this._parentContainer.addListener("pointerdown", this._handlePointerDown);
         this._target.addEventListener("pointermove", this._handlePointerMove);
@@ -107,9 +110,30 @@ class RoomCamera extends PIXI.Container {
     setFollowAvatar(value, avatar) {
         this._followAvatar = value;
         this._avatar = avatar;
+        // Centralize a câmera na nova posição do avatar
+        if (this._avatar) {
+            this._centerCameraOnAvatar();
+        }
+    }
+    _centerCameraOnAvatar() {
+        var _a;
+        // Centralizar a câmera diretamente na posição do avatar
+        const avatarPos = (_a = this._avatar) === null || _a === void 0 ? void 0 : _a.screenPosition;
+        if (avatarPos) {
+            const newX = -avatarPos.x + this._parentBounds().width / 2;
+            const newY = -avatarPos.y + this._parentBounds().height / 2;
+            this._offsets.x = Math.min(0, Math.max(newX, -(this._room.roomWidth - this._parentBounds().width)));
+            this._offsets.y = Math.min(0, Math.max(newY, -(this._room.roomHeight - this._parentBounds().height)));
+            this._container.x = this._offsets.x;
+            this._container.y = this._offsets.y;
+        }
     }
     _updatePosition() {
-        if (this._followAvatar && this._avatar && this._state.type === "WAITING") {
+        // Seguir o avatar apenas quando não estiver arrastando manualmente
+        if (this._followAvatar &&
+            this._avatar &&
+            this._state.type === "WAITING" &&
+            !this._isDragging) {
             const avatarPos = this._avatar.screenPosition;
             if (avatarPos) {
                 const newX = -avatarPos.x + this._parentBounds().width / 2;
@@ -121,6 +145,7 @@ class RoomCamera extends PIXI.Container {
             }
         }
         else {
+            // Atualiza normalmente quando a câmera não está seguindo o avatar
             switch (this._state.type) {
                 case "DRAGGING": {
                     const diffX = this._state.currentX - this._state.startX;

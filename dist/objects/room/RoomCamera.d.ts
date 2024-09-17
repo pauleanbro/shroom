@@ -14,6 +14,7 @@ export declare class RoomCamera extends PIXI.Container {
     private _target;
     private _followAvatar;
     private _avatar;
+    private _isDragging;
     constructor(_room: Room, _parentBounds: () => PIXI.Rectangle, _options?: (RoomCameraOptions & {
         followAvatar?: boolean | undefined;
         avatar?: Avatar | undefined;
@@ -21,6 +22,7 @@ export declare class RoomCamera extends PIXI.Container {
     static forScreen(room: Room, options?: RoomCameraOptions): RoomCamera;
     destroy(): void;
     setFollowAvatar(value: boolean, avatar?: Avatar): void;
+    private _centerCameraOnAvatar;
     private _handlePointerUp;
     private _handlePointerDown;
     private _handlePointerMove;
