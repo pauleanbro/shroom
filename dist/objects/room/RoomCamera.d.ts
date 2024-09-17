@@ -37,5 +37,7 @@ export declare class RoomCamera extends PIXI.Container {
 type RoomCameraOptions = {
     duration?: number;
     target?: EventTarget;
+    followAvatar?: boolean;
+    avatar?: Avatar;
 };
 export {};
