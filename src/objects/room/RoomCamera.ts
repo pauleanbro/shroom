@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 
 import { Room } from "./Room";
+import { Avatar } from "../avatar/Avatar";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const TWEEN = require("tween.js");
@@ -17,10 +18,16 @@ export class RoomCamera extends PIXI.Container {
   private _tween: any;
   private _target: EventTarget;
 
+  private _followAvatar: boolean;
+  private _avatar: Avatar | undefined;
+
   constructor(
     private readonly _room: Room,
     private readonly _parentBounds: () => PIXI.Rectangle,
-    private readonly _options?: RoomCameraOptions
+    private readonly _options?: RoomCameraOptions & {
+      followAvatar?: boolean;
+      avatar?: Avatar;
+    }
   ) {
     super();
 
@@ -34,6 +41,9 @@ export class RoomCamera extends PIXI.Container {
     this._container = new PIXI.Container();
     this._container.addChild(this._room);
     this._parentContainer.addChild(this._container);
+
+    this._followAvatar = _options?.followAvatar ?? false;
+    this._avatar = _options?.avatar;
 
     this.addChild(this._parentContainer);
 
@@ -68,6 +78,11 @@ export class RoomCamera extends PIXI.Container {
       this._handlePointerMove as any
     );
     this._target.removeEventListener("pointerup", this._handlePointerUp as any);
+  }
+
+  setFollowAvatar(value: boolean, avatar?: Avatar) {
+    this._followAvatar = value;
+    this._avatar = avatar;
   }
 
   private _handlePointerUp = (event: PointerEvent) => {
@@ -117,32 +132,46 @@ export class RoomCamera extends PIXI.Container {
   };
 
   private _updatePosition() {
-    switch (this._state.type) {
-      case "DRAGGING": {
-        // When dragging, the current position consists of the current offset of the camera
-        // and the drag difference.
+    if (this._followAvatar && this._avatar && this._state.type === "WAITING") {
+      const avatarPos = this._avatar.screenPosition;
 
-        const diffX = this._state.currentX - this._state.startX;
-        const diffY = this._state.currentY - this._state.startY;
+      if (avatarPos) {
+        const newX = -avatarPos.x + this._parentBounds().width / 2;
+        const newY = -avatarPos.y + this._parentBounds().height / 2;
 
-        this._container.x = this._offsets.x + diffX;
-        this._container.y = this._offsets.y + diffY;
-        break;
-      }
-
-      case "ANIMATE_ZERO": {
-        // When animating back to the zero point, we use the animatedOffsets of the camera.
-
-        this._container.x = this._animatedOffsets.x;
-        this._container.y = this._animatedOffsets.y;
-        break;
-      }
-
-      default: {
-        // Default behavior: Use the set offsets of the camera.
+        this._offsets.x = Math.min(
+          0,
+          Math.max(newX, -(this._room.roomWidth - this._parentBounds().width))
+        );
+        this._offsets.y = Math.min(
+          0,
+          Math.max(newY, -(this._room.roomHeight - this._parentBounds().height))
+        );
 
         this._container.x = this._offsets.x;
         this._container.y = this._offsets.y;
+      }
+    } else {
+      switch (this._state.type) {
+        case "DRAGGING": {
+          const diffX = this._state.currentX - this._state.startX;
+          const diffY = this._state.currentY - this._state.startY;
+
+          this._container.x = this._offsets.x + diffX;
+          this._container.y = this._offsets.y + diffY;
+          break;
+        }
+
+        case "ANIMATE_ZERO": {
+          this._container.x = this._animatedOffsets.x;
+          this._container.y = this._animatedOffsets.y;
+          break;
+        }
+
+        default: {
+          this._container.x = this._offsets.x;
+          this._container.y = this._offsets.y;
+        }
       }
     }
   }
