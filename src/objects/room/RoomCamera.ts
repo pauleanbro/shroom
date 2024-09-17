@@ -20,6 +20,7 @@ export class RoomCamera extends PIXI.Container {
 
   private _followAvatar: boolean;
   private _avatar: Avatar | undefined;
+  private _isDragging: boolean = false; // Para rastrear o arrasto manual
 
   constructor(
     private readonly _room: Room,
@@ -46,6 +47,10 @@ export class RoomCamera extends PIXI.Container {
     this._avatar = _options?.avatar;
 
     this.addChild(this._parentContainer);
+
+    if (this._avatar) {
+      this._centerCameraOnAvatar();
+    }
 
     // Activation of the camera is only triggered by a down event on the parent container.
     this._parentContainer.addListener("pointerdown", this._handlePointerDown);
@@ -83,6 +88,32 @@ export class RoomCamera extends PIXI.Container {
   setFollowAvatar(value: boolean, avatar?: Avatar) {
     this._followAvatar = value;
     this._avatar = avatar;
+
+    // Centralize a câmera na nova posição do avatar
+    if (this._avatar) {
+      this._centerCameraOnAvatar();
+    }
+  }
+
+  private _centerCameraOnAvatar() {
+    // Centralizar a câmera diretamente na posição do avatar
+    const avatarPos = this._avatar?.screenPosition;
+    if (avatarPos) {
+      const newX = -avatarPos.x + this._parentBounds().width / 2;
+      const newY = -avatarPos.y + this._parentBounds().height / 2;
+
+      this._offsets.x = Math.min(
+        0,
+        Math.max(newX, -(this._room.roomWidth - this._parentBounds().width))
+      );
+      this._offsets.y = Math.min(
+        0,
+        Math.max(newY, -(this._room.roomHeight - this._parentBounds().height))
+      );
+
+      this._container.x = this._offsets.x;
+      this._container.y = this._offsets.y;
+    }
   }
 
   private _handlePointerUp = (event: PointerEvent) => {
@@ -91,19 +122,13 @@ export class RoomCamera extends PIXI.Container {
 
     if (this._state.pointerId !== event.pointerId) return;
 
-    let animatingBack = false;
-
-    if (this._state.type === "DRAGGING") {
-      animatingBack = this._stopDragging(this._state);
-    }
-
-    if (!animatingBack) {
-      this._resetDrag();
-    }
+    this._isDragging = false; // O arrasto manual foi finalizado
+    this._resetDrag();
   };
 
   private _handlePointerDown = (event: PIXI.InteractionEvent) => {
     const position = event.data.getLocalPosition(this.parent);
+    this._isDragging = true; // Começou o arrasto manual
     if (this._state.type === "WAITING") {
       this._enterWaitingForDistance(position, event.data.pointerId);
     } else if (this._state.type === "ANIMATE_ZERO") {
@@ -118,21 +143,34 @@ export class RoomCamera extends PIXI.Container {
       event.clientY - box.y - this.parent.worldTransform.tx
     );
 
-    switch (this._state.type) {
-      case "WAIT_FOR_DISTANCE": {
-        this._tryUpgradeWaitForDistance(this._state, position, event.pointerId);
-        break;
-      }
+    if (this._isDragging) {
+      // Permite o arrasto manual do mapa
+      switch (this._state.type) {
+        case "WAIT_FOR_DISTANCE": {
+          this._tryUpgradeWaitForDistance(
+            this._state,
+            position,
+            event.pointerId
+          );
+          break;
+        }
 
-      case "DRAGGING": {
-        this._updateDragging(this._state, position, event.pointerId);
-        break;
+        case "DRAGGING": {
+          this._updateDragging(this._state, position, event.pointerId);
+          break;
+        }
       }
     }
   };
 
   private _updatePosition() {
-    if (this._followAvatar && this._avatar && this._state.type === "WAITING") {
+    // Seguir o avatar apenas quando não estiver arrastando manualmente
+    if (
+      this._followAvatar &&
+      this._avatar &&
+      this._state.type === "WAITING" &&
+      !this._isDragging
+    ) {
       const avatarPos = this._avatar.screenPosition;
 
       if (avatarPos) {
@@ -152,6 +190,7 @@ export class RoomCamera extends PIXI.Container {
         this._container.y = this._offsets.y;
       }
     } else {
+      // Atualiza normalmente quando a câmera não está seguindo o avatar
       switch (this._state.type) {
         case "DRAGGING": {
           const diffX = this._state.currentX - this._state.startX;
