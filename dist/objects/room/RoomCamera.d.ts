@@ -1,5 +1,6 @@
 import * as PIXI from "pixi.js";
 import { Room } from "./Room";
+import { Avatar } from "../avatar/Avatar";
 export declare class RoomCamera extends PIXI.Container {
     private readonly _room;
     private readonly _parentBounds;
@@ -11,9 +12,15 @@ export declare class RoomCamera extends PIXI.Container {
     private _parentContainer;
     private _tween;
     private _target;
-    constructor(_room: Room, _parentBounds: () => PIXI.Rectangle, _options?: RoomCameraOptions | undefined);
+    private _followAvatar;
+    private _avatar;
+    constructor(_room: Room, _parentBounds: () => PIXI.Rectangle, _options?: (RoomCameraOptions & {
+        followAvatar?: boolean | undefined;
+        avatar?: Avatar | undefined;
+    }) | undefined);
     static forScreen(room: Room, options?: RoomCameraOptions): RoomCamera;
     destroy(): void;
+    setFollowAvatar(value: boolean, avatar?: Avatar): void;
     private _handlePointerUp;
     private _handlePointerDown;
     private _handlePointerMove;
