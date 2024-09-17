@@ -364,4 +364,9 @@ type RoomCameraState =
   | CameraDraggingState
   | CameraAnimateZeroState;
 
-type RoomCameraOptions = { duration?: number; target?: EventTarget };
+type RoomCameraOptions = {
+  duration?: number;
+  target?: EventTarget;
+  followAvatar?: boolean;
+  avatar?: Avatar;
+};
