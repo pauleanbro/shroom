@@ -127,6 +127,7 @@ export declare class BaseFurniture implements IFurnitureEventHandlers, IEventGro
     private _destroySprites;
     private _loadFurniture;
     private _handleAnimationChange;
+    static showAllFurni(shroom: Shroom, container: PIXI.Container, furnitureLoader: IFurnitureLoader): Promise<void>;
     private _getAlpha;
 }
 export interface IFurnitureRoomVisualization {

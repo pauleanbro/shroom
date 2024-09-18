@@ -61,6 +61,16 @@ class FurnitureLoader {
         this._furnitureCache.set(type, furniture);
         return furniture;
     }
+    async listFurni() {
+        const infos = await this._options.furnitureData.getInfos();
+        return infos.map(([type, info]) => {
+            var _a;
+            return ({
+                type,
+                name: (_a = info.name) !== null && _a !== void 0 ? _a : "Unknown", // Fornece um valor padrão se 'name' for undefined
+            });
+        });
+    }
     _getAssetBundle(type, revision) {
         const key = `${type}_${revision}`;
         const current = this._assetBundles.get(key);

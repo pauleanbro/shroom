@@ -93,6 +93,14 @@ export class FurnitureLoader implements IFurnitureLoader {
     return furniture;
   }
 
+  public async listFurni(): Promise<{ type: string; name: string }[]> {
+    const infos = await this._options.furnitureData.getInfos();
+    return infos.map(([type, info]) => ({
+      type,
+      name: info.name ?? "Unknown", // Fornece um valor padrão se 'name' for undefined
+    }));
+  }
+
   private _getAssetBundle(type: string, revision?: number) {
     const key = `${type}_${revision}`;
     const current = this._assetBundles.get(key);

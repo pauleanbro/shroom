@@ -3,6 +3,7 @@ import { FurnitureId } from "./IFurnitureData";
 
 export interface IFurnitureLoader {
   loadFurni(type: FurnitureFetch): Promise<LoadFurniResult>;
+  listFurni(): Promise<{ type: string; name: string }[]>; // Adicione esta linha
 }
 
 export type FurnitureFetch =

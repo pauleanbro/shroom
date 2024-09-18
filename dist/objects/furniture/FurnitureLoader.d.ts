@@ -13,6 +13,10 @@ export declare class FurnitureLoader implements IFurnitureLoader {
     static create(furnitureData: IFurnitureData, resourcePath?: string): FurnitureLoader;
     static createForJson(furnitureData: IFurnitureData, resourcePath?: string): FurnitureLoader;
     loadFurni(fetch: FurnitureFetch): Promise<LoadFurniResult>;
+    listFurni(): Promise<{
+        type: string;
+        name: string;
+    }[]>;
     private _getAssetBundle;
 }
 interface Options {

@@ -392,6 +392,29 @@ class BaseFurniture {
             this.visualization.updateFrame(this.dependencies.animationTicker.current());
         }
     }
+    static async showAllFurni(shroom, container, furnitureLoader // Passar o furnitureLoader explicitamente
+    ) {
+        try {
+            // Chama o método listarMobis (listFurni) do FurnitureLoader
+            const allFurnis = await furnitureLoader.listFurni();
+            allFurnis.forEach(({ type }, index) => {
+                // Cria e posiciona os móveis no palco
+                const furniture = BaseFurniture.fromShroom(shroom, container, {
+                    direction: 2,
+                    type: { kind: "type", type },
+                    animation: "0",
+                });
+                // Posiciona as mobílias no palco com base no índice
+                furniture.x = (index % 5) * 150;
+                furniture.y = Math.floor(index / 5) * 150;
+                // Converter para 'unknown' antes de 'PIXI.DisplayObject'
+                container.addChild(furniture);
+            });
+        }
+        catch (error) {
+            console.error("Erro ao carregar mobílias: ", error);
+        }
+    }
     _getAlpha({ layerAlpha, baseAlpha, }) {
         if (layerAlpha != null)
             return (layerAlpha / 255) * baseAlpha;

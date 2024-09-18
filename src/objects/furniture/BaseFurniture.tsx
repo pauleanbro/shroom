@@ -552,6 +552,35 @@ export class BaseFurniture implements IFurnitureEventHandlers, IEventGroup {
     }
   }
 
+  public static async showAllFurni(
+    shroom: Shroom,
+    container: PIXI.Container,
+    furnitureLoader: IFurnitureLoader // Passar o furnitureLoader explicitamente
+  ) {
+    try {
+      // Chama o método listarMobis (listFurni) do FurnitureLoader
+      const allFurnis = await furnitureLoader.listFurni();
+
+      allFurnis.forEach(({ type }, index) => {
+        // Cria e posiciona os móveis no palco
+        const furniture = BaseFurniture.fromShroom(shroom, container, {
+          direction: 2,
+          type: { kind: "type", type },
+          animation: "0",
+        });
+
+        // Posiciona as mobílias no palco com base no índice
+        furniture.x = (index % 5) * 150;
+        furniture.y = Math.floor(index / 5) * 150;
+
+        // Converter para 'unknown' antes de 'PIXI.DisplayObject'
+        container.addChild((furniture as unknown) as PIXI.DisplayObject);
+      });
+    } catch (error) {
+      console.error("Erro ao carregar mobílias: ", error);
+    }
+  }
+
   private _getAlpha({
     layerAlpha,
     baseAlpha,
